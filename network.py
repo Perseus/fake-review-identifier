@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
  
-data = pd.read_csv('F:/Opinion Mining/NN/Dataset/dataset/review.csv', delimiter = '|')
+data = pd.read_csv('Dataset/dataset/review.csv', delimiter = '|')
 x = data.iloc[:, 5].values
 y = data.iloc[:, 3].values
 
@@ -79,7 +79,7 @@ from keras.layers import LSTM
 model = Sequential()
 model.add(Embedding(len(word2index), 32, input_length=200))
 model.add(SpatialDropout1D(0.2))
-model.add(LSTM(32, dropout=0.2,kernel_initializer='glorot_uniform', recurrent_initializer='orthogonal', recurrent_dropout=0.2))
+model.add(LSTM(32, dropout=0.2))
 model.add(Dense(32, kernel_initializer='random_uniform', activation='tanh'))
 model.add(Dropout(0.5))
 model.add(Dense(2, kernel_initializer='random_uniform', activation='softmax'))
@@ -99,3 +99,5 @@ score, acc = model.evaluate(x_test, y_test,
 print('Test score:', score)
 print('Test accuracy:', acc)
 
+model.save('network_model.h5')
+del model
