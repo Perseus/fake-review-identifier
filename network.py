@@ -104,10 +104,10 @@ print('Test accuracy:', acc)
 
 #prediction only
 predict_data = [
-        "This place is horrible",
-        "The food was amazing!",
+        "This place is horrible with very slow service",
+        "The food was amazing with a lovely view and ambience!",
         "The service was really good!",
-        "The waiter was rude to us",
+        "The waiter was rude to us and didn't let us order in peace",
         "The ambience was great and the service was really good too!" 
 ]
 prediction_corpus = []
@@ -140,12 +140,20 @@ for i in range(len(prediction_corpus)):
 prediction_train_text = pad_sequences(prediction_train_text, maxlen=200, dtype='int32',
     padding='post', truncating='post', value=0)
 
+predicter = model.predict_classes(prediction_train_text,verbose=0)
+print(predicter)
+
+
+
 model.save('network_model.h5')
+
+
 model.save_weights('network_weights.h5')
+
 print('######### Model Info ##############')
 print(model.summary())
-model_json = model.to_json()
 
+model_json = model.to_json()
 with open('network_architecture.json', 'w') as file:
     json.dump(model_json, file)
 
