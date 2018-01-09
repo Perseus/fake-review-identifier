@@ -1,11 +1,19 @@
 import pandas as pd
 import numpy as np
+import re
+import nltk
+from gensim import corpora
+import itertools
+from keras.preprocessing.sequence import pad_sequences
+import json
+
  
 data = pd.read_csv('Dataset/dataset/review.csv', delimiter = '|')
 x = data.iloc[:, 5].values
 y = data.iloc[:, 3].values
 
 
+    
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 encoder_y = LabelEncoder()
 for i in range(0, len(y)):
@@ -22,11 +30,6 @@ onehotencoder = OneHotEncoder(categorical_features = [0])
 y = onehotencoder.fit_transform(y).toarray()
 
 
-import re
-import nltk
-from gensim import corpora
-
-
 corpus = []
 for i in range(len(x)):
     text = re.sub('[^a-zA-Z0-9]',' ', x[i])
@@ -37,7 +40,7 @@ for i in range(len(x)):
 #dictionary = corpora.Dictionary(corpus)
 #word2index = dict(dictionary.token2id)
 
-import itertools
+
 freq_dist = nltk.FreqDist(itertools.chain(*corpus))
 
 vocab = freq_dist.most_common(15079)
@@ -57,7 +60,6 @@ for i in range(len(corpus)):
         line.append(index)
     train_text.append(line)    
 
-from keras.preprocessing.sequence import pad_sequences
 train_text = pad_sequences(train_text, maxlen=200, dtype='int32',
     padding='post', truncating='post', value=0)
 
@@ -99,5 +101,51 @@ score, acc = model.evaluate(x_test, y_test,
 print('Test score:', score)
 print('Test accuracy:', acc)
 
+
+#prediction only
+predict_data = [
+        "This place is horrible",
+        "The food was amazing!",
+        "The service was really good!",
+        "The waiter was rude to us",
+        "The ambience was great and the service was really good too!" 
+]
+prediction_corpus = []
+for i in range(len(predict_data)):
+    text = re.sub('[^a-zA-Z0-9]',' ', predict_data[i])
+    text = text.lower()
+    text = nltk.word_tokenize(text)
+    prediction_corpus.append(text)
+
+
+prediction_freq_dist = nltk.FreqDist(itertools.chain(*prediction_corpus))
+
+prediction_vocab = prediction_freq_dist.most_common(15079)
+
+prediction_index2word = ['_'] + ['unk'] + [m[0] for m in prediction_vocab]
+
+prediction_word2index = dict([(w,i) for i,w in enumerate(prediction_index2word)])
+
+prediction_train_text = []
+for i in range(len(prediction_corpus)):
+    line = []
+    for word in prediction_corpus[i]:
+        if word in prediction_word2index:
+            index = prediction_word2index[word]
+        else:
+            index = prediction_word2index['unk']
+        line.append(index)
+    prediction_train_text.append(line)    
+
+prediction_train_text = pad_sequences(prediction_train_text, maxlen=200, dtype='int32',
+    padding='post', truncating='post', value=0)
+
 model.save('network_model.h5')
-del model
+model.save_weights('network_weights.h5')
+print('######### Model Info ##############')
+print(model.summary())
+model_json = model.to_json()
+
+with open('network_architecture.json', 'w') as file:
+    json.dump(model_json, file)
+
