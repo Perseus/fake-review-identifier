@@ -4,8 +4,7 @@ import re
 import nltk
 from gensim import corpora
 
-x = "The place is bad"
-
+x = "I loved the place"
 corpus = []
 text = re.sub('[^a-zA-Z0-9]',' ', x)
 text = text.lower()
