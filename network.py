@@ -8,12 +8,16 @@ from keras.preprocessing.sequence import pad_sequences
 import json
 
  
-data = pd.read_csv('Dataset/dataset/review.csv', delimiter = '|')
-x = data.iloc[:, 5].values
-y = data.iloc[:, 3].values
+data = pd.read_csv('Dataset/dataset/myelott_reviews.csv', delimiter = '|')
+idee = data.iloc[:, 0].values
+text = data.iloc[:, 1].values
+pol = data.iloc[:,2].values
+auth = data.iloc[:,3].values
 
+text = [x.strip() for x in text]
 
-    
+print(auth)
+'''
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 encoder_y = LabelEncoder()
 for i in range(0, len(y)):
@@ -156,4 +160,4 @@ print(model.summary())
 model_json = model.to_json()
 with open('network_architecture.json', 'w') as file:
     json.dump(model_json, file)
-
+'''

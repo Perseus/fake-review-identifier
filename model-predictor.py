@@ -8,20 +8,14 @@ from keras.preprocessing.sequence import pad_sequences
 import json
 
  
-data = pd.read_csv('Dataset/dataset/review.csv', delimiter = '|')
-x = data.iloc[:, 5].values
+data = pd.read_csv('Dataset/dataset/myelott_reviews.csv', delimiter = '|')
+x = data.iloc[:, 1].values
 y = data.iloc[:, 3].values
-
+x = [l.strip() for l in x]
 
     
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 encoder_y = LabelEncoder()
-for i in range(0, len(y)):
-    if y[i] < 3:
-        y[i] = 0
-    else:
-        y[i] = 1
-        
 y = encoder_y.fit_transform(y)
 
 y = y.reshape(-1, 1)
@@ -37,17 +31,14 @@ for i in range(len(x)):
     text = text.lower()
     text = nltk.word_tokenize(text)
     corpus.append(text)
-    
-#dictionary = corpora.Dictionary(corpus)
-#word2index = dict(dictionary.token2id)
 
 
 predict_data = [
-        "This place is horrible with very slow service. The food was not good and I didnt enjoy",
+        "Madhu Tiffin center is a very good place for south indian cuisine. It is very cheap as well and also the service is good",
         "The food was amazing with a lovely view and ambience!",
         "The service was really good!",
         "The food was really bad",
-        "The ambience was great and the service was really good too!" 
+        "Love the staff, love the meat, love the place. Prepare for a long line around lunch or dinner hours." 
 ]
 predict_corpus = []
 
@@ -76,13 +67,13 @@ for i in range(len(predict_corpus)):
         else:
             index = word2index['unk']
         line.append(index)
-        print(line)
+        #print(line)
     prediction_train_text.append(line)    
 
-prediction_train_text = pad_sequences(prediction_train_text, maxlen=200, dtype='int32',
+prediction_train_text = pad_sequences(prediction_train_text, maxlen=500, dtype='int32',
     padding='post', truncating='post', value=0)
 
-labels = ['negative', 'positive']
+labels = ['fake', 'original']
 from keras.models import load_model
 model = load_model('network_model.h5')
 model.compile(loss='categorical_crossentropy',
@@ -101,11 +92,11 @@ model.save('network_model.h5')
 
 
 model.save_weights('network_weights.h5')
-'''
+
 print('######### Model Info ##############')
 print(model.summary())
-'''
+
 model_json = model.to_json()
 with open('network_architecture.json', 'w') as file:
     json.dump(model_json, file)
-'''
+    '''
